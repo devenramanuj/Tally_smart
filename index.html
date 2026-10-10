@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ટેલી સ્માર્ટ</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,'Noto Sans Gujarati',sans-serif;background:#f3f4f6;color:#111}
+header{background:#1e3a8a;color:#fff;padding:12px 14px;font-size:18px;font-weight:700}
+nav{display:flex;overflow-x:auto;background:#fff;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:5}
+nav button{flex:1;min-width:76px;padding:11px 2px;border:0;background:none;font-size:13px;font-weight:600;color:#555;border-bottom:3px solid transparent}
+nav button.on{color:#1e3a8a;border-bottom-color:#1e3a8a}
+main{padding:12px;max-width:760px;margin:auto}
+.tab{display:none}.tab.on{display:block}
+.card{background:#fff;border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:0 1px 3px #0002}
+textarea,input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:15px;font-family:inherit;margin:4px 0 8px}
+textarea{min-height:110px}
+.btn{background:#1e3a8a;color:#fff;border:0;border-radius:8px;padding:11px 16px;font-size:15px;font-weight:600;width:100%;margin-top:4px}
+.btn.g{background:#15803d}.btn.r{background:#b91c1c;width:auto;padding:6px 10px;font-size:13px}.btn.o{background:#fff;color:#1e3a8a;border:1px solid #1e3a8a}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:6px 4px;border-bottom:1px solid #e5e7eb;text-align:left;vertical-align:top}
+th{background:#eef2ff}
+.n{text-align:right;white-space:nowrap}
+.vo{border-left:4px solid #1e3a8a;padding:6px 10px;margin-bottom:8px;background:#fafafa;border-radius:6px;font-size:14px}
+.vo small{color:#666}
+#msg{padding:8px;border-radius:8px;margin-bottom:10px;display:none;font-size:14px}
+#msg.e{display:block;background:#fee2e2;color:#991b1b}#msg.s{display:block;background:#dcfce7;color:#166534}#msg.w{display:block;background:#e0e7ff;color:#1e3a8a}
+img#pv{max-width:100%;border-radius:8px;display:none;margin:6px 0}
+.tot td{font-weight:700;background:#eef2ff}
+.fl{display:none;gap:6px;align-items:center;padding:8px 12px;background:#fff;border-bottom:1px solid #ddd;font-size:13px}.fl input{margin:0;padding:6px}
+</style>
+</head>
+<body>
+<header>📒 ટેલી સ્માર્ટ</header>
+<nav id="nav">
+<button class="on" data-t="t1">એન્ટ્રી</button>
+<button data-t="t2">વાઉચર</button>
+<button data-t="t3">ખાતાવહી</button>
+<button data-t="t4">તારીજ પત્રક</button>
+<button data-t="t6">આખરી હિસાબ</button>
+<button data-t="t5">સેટિંગ</button>
+</nav>
+<div class="fl" id="flt"><span>થી</span><input type="date" id="fr"><span>સુધી</span><input type="date" id="to"><button class="btn o" id="fclr" style="width:auto;margin:0;padding:6px 10px">સાફ</button></div>
+<datalist id="acl"></datalist>
+<main>
+<div id="msg"></div>
+
+<div class="tab on" id="t1">
+<div class="card">
+<b>રોજમેળનો ફોટો</b>
+<input type="file" id="file" accept="image/*">
+<img id="pv">
+<b>અથવા લખો</b>
+<textarea id="txt" placeholder="ઉદાહરણ:&#10;રમેશભાઈ પાસેથી રોકડા 5000 મળ્યા&#10;દુકાન ભાડું 3000 ચૂકવ્યું&#10;સુરેશભાઈને 10000 નો માલ ઉધાર વેચ્યો"></textarea>
+<label>તારીખ (જો રોજમેળમાં તારીખ ન હોય તો)</label>
+<input type="date" id="dt">
+<button class="btn o" id="mic" style="margin-bottom:8px">🎤 બોલીને લખો</button>
+<label style="display:block;margin:6px 0"><input type="checkbox" id="auto" checked style="width:auto;margin:0 6px 0 0">તૈયાર થતા જ આપોઆપ ખાતામાં સાચવો</label>
+<button class="btn" id="go">એન્ટ્રી તૈયાર કરો</button>
+</div>
+<div id="pend"></div>
+</div>
+
+<div class="tab" id="t2"><div id="vlist"></div></div>
+
+<div class="tab" id="t3">
+<div class="card">
+<label>ખાતું પસંદ કરો</label>
+<select id="acsel"></select>
+<div id="ledger"></div>
+</div>
+</div>
+
+<div class="tab" id="t4"><div class="card" id="trial"></div></div>
+
+<div class="tab" id="t6">
+<div class="card" id="pl"></div>
+<div class="card" id="bs"></div>
+<div class="card"><b>ખાતાના જૂથ</b>
+<button class="btn g" id="aig">ખાલી ખાતાના જૂથ AI થી નક્કી કરો</button>
+<div id="grp"></div></div>
+</div>
+
+<div class="tab" id="t5">
+<div class="card">
+<label>Gemini API ચાવી</label>
+<input type="password" id="key" placeholder="AIza...">
+<button class="btn g" id="savekey">ચાવી સાચવો</button>
+</div>
+<div class="card">
+<b>ઉઘડતી સિલક</b>
+<input id="ob_n" list="acl" placeholder="ખાતાનું નામ (જેમ કે રોકડ)">
+<input id="ob_a" type="number" placeholder="રકમ">
+<select id="ob_s"><option value="d">ઉધાર સિલક (રોકડ, બેંક, લેવાના)</option><option value="c">જમા સિલક (દેવું, મૂડી)</option></select>
+<input id="ob_d" type="date">
+<button class="btn g" id="ob_b">ઉઘડતી સિલક ઉમેરો</button>
+</div>
+<div class="card">
+<b>Tally Prime માં સીધું મોકલવું</b>
+<label>Tally Prime નું સરનામું</label>
+<input id="t_url" placeholder="http://localhost:9000">
+<label>કંપનીનું નામ (ખાલી રાખો તો Tally માં ખુલ્લી કંપની)</label>
+<input id="t_co">
+<label style="display:block;margin:6px 0"><input type="checkbox" id="t_auto" style="width:auto;margin:0 6px 0 0">નવી એન્ટ્રી સાચવતા જ આપોઆપ Tally Prime માં મોકલો</label>
+<button class="btn g" id="t_send">બાકી બધી એન્ટ્રી Tally Prime માં મોકલો</button>
+<button class="btn o" id="t_reset" style="margin-top:8px">મોકલવાની સ્થિતિ સાફ કરો</button>
+</div>
+<div class="card">
+<b>Tally XML</b>
+<select id="xlang"><option value="gu">ગુજરાતી નામ</option><option value="en">English names</option></select>
+<button class="btn g" id="xml">Tally XML ડાઉનલોડ કરો</button>
+</div>
+<div class="card">
+<button class="btn o" id="exp">બેકઅપ ડાઉનલોડ કરો</button>
+<label style="display:block;margin-top:10px">બેકઅપ પાછું લાવો</label>
+<input type="file" id="rst" accept=".json,application/json">
+<button class="btn r" id="clr" style="width:100%;margin-top:10px;padding:11px">બધો ડેટા કાઢી નાખો</button>
+</div>
+</div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const K='smart_entries',KK='acc_gemini_key',CASH='રોકડ';
+let entries=JSON.parse(localStorage.getItem(K)||'[]');
+let pending=[],img=null,lastBatch=[];
+const fmt=n=>Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const save=()=>localStorage.setItem(K,JSON.stringify(entries));
+let groups=JSON.parse(localStorage.getItem('smart_groups')||'{}'),ed=null,gl=[];
+const saveG=()=>localStorage.setItem('smart_groups',JSON.stringify(groups));
+const OB='ઉઘડતી સિલક';
+const GL={'Cash-in-Hand':['હાથ પરની રોકડ','A'],'Bank Accounts':['બેંક ખાતા','A'],'Sundry Debtors':['દેવાદાર (પાસેથી લેવાના)','A'],'Current Assets':['ચાલુ મિલકત','A'],'Fixed Assets':['સ્થાયી મિલકત','A'],'Sundry Creditors':['લેણદાર (ને દેવાના)','L'],'Capital Account':['મૂડી','L'],'Loans (Liability)':['લોન (દેવું)','L'],'Current Liabilities':['ચાલુ દેવાં','L'],'Duties & Taxes':['કર','L'],'Sales Accounts':['વેચાણ','I'],'Direct Incomes':['સીધી આવક','I'],'Indirect Incomes':['આડકતરી આવક','I'],'Purchase Accounts':['ખરીદી','X'],'Direct Expenses':['સીધા ખર્ચ','X'],'Indirect Expenses':['આડકતરા ખર્ચ','X']};
+const grp=n=>n===CASH?'Cash-in-Hand':n===OB?'Capital Account':(groups[n]||'');
+const kind=n=>GL[grp(n)]?GL[grp(n)][1]:'';
+const bals=l=>{const m={};l.forEach(e=>{m[e.debit]=(m[e.debit]||0)+e.amount;m[e.credit]=(m[e.credit]||0)-e.amount});return m};
+const fr=()=>$('fr').value,to=()=>$('to').value;
+const inR=e=>(!fr()||e.date>=fr())&&(!to()||e.date<=to());
+const upto=e=>!to()||e.date<=to();
+function msg(t,c){const m=$('msg');m.textContent=t;m.className=c;if(c==='s')setTimeout(()=>m.className='',2500)}
+$('dt').value=new Date().toISOString().slice(0,10);
+$('key').value=localStorage.getItem(KK)||'';
+
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('nav button,.tab').forEach(x=>x.classList.remove('on'));
+ b.classList.add('on');$(b.dataset.t).classList.add('on');
+ $('flt').style.display=['t2','t3','t4','t6'].includes(b.dataset.t)?'flex':'none';renderAll();
+});
+
+$('savekey').onclick=()=>{localStorage.setItem(KK,$('key').value.trim());msg('ચાવી સાચવાઈ ગઈ','s')};
+
+$('file').onchange=e=>{
+ const f=e.target.files[0];if(!f)return;
+ const r=new FileReader();
+ r.onload=()=>{const im=new Image();im.onload=()=>{
+  const s=Math.min(1,1600/Math.max(im.width,im.height));
+  const c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;
+  c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  const u=c.toDataURL('image/jpeg',0.85);
+  img=u.split(',')[1];$('pv').src=u;$('pv').style.display='block';
+ };im.src=r.result};
+ r.readAsDataURL(f);
+};
+
+function accounts(){const s=new Set([CASH]);entries.forEach(e=>{s.add(e.debit);s.add(e.credit)});return [...s]}
+
+async function convert(){
+ const key=localStorage.getItem(KK);
+ if(!key){msg('પહેલા સેટિંગમાં Gemini API ચાવી નાખો','e');return}
+ const text=$('txt').value.trim();
+ if(!img&&!text){msg('ફોટો પસંદ કરો અથવા લખો','e');return}
+ const prompt=`You are an expert Indian accountant using Tally ERP. The input is a Gujarati daybook (રોજમેળ), as photo and/or typed text. Convert EVERY transaction into double-entry vouchers using golden rules: Personal account - debit the receiver, credit the giver. Real account - debit what comes in, credit what goes out. Nominal account - debit expenses and losses, credit incomes and gains.
+Examples: cash received from party = Dr ${CASH} / Cr party. Cash paid for expense = Dr expense / Cr ${CASH}. Credit sale = Dr party / Cr વેચાણ. Credit purchase = Dr ખરીદી / Cr party. Cash sale = Dr ${CASH} / Cr વેચાણ. Bank deposit = Dr બેંક / Cr ${CASH}. Salary paid = Dr પગાર ખર્ચ / Cr ${CASH}.
+Rules: Cash account name is exactly "${CASH}". Write all account names and narration in Gujarati. Reuse these existing account names exactly when the same account is meant: ${accounts().join(', ')}. Date format YYYY-MM-DD; if no date is visible use ${$('dt').value}. amount must be a number. type must be one of: પ્રાપ્તિ, ચુકવણી, જર્નલ, વેચાણ, ખરીદી, કોન્ટ્રા. Split compound entries into several simple entries. Output ONLY a JSON array of objects: {"date","type","debit","credit","amount","narration"}.${text?'\n\nTyped entries:\n'+text:''}`;
+ const parts=[{text:prompt}];
+ if(img)parts.push({inline_data:{mime_type:'image/jpeg',data:img}});
+ $('go').disabled=true;msg('Gemini એન્ટ્રી તૈયાર કરી રહ્યું છે...','w');
+ try{
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key),{
+   method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({contents:[{parts}],generationConfig:{responseMimeType:'application/json',temperature:0.1}})
+  });
+  const d=await r.json();
+  if(!r.ok)throw new Error(r.status===429?'મર્યાદા પૂરી થઈ, થોડી વાર પછી ફરી પ્રયત્ન કરો':(d.error&&d.error.message)||'ભૂલ');
+  let t=d.candidates[0].content.parts.map(p=>p.text||'').join('').replace(/```json|```/g,'').trim();
+  const arr=JSON.parse(t);
+  pending=arr.filter(e=>e.debit&&e.credit&&Number(e.amount)>0).map(e=>({date:e.date||$('dt').value,type:e.type||'જર્નલ',debit:String(e.debit).trim(),credit:String(e.credit).trim(),amount:Number(e.amount),narration:e.narration||''}));
+  if(!pending.length){msg('કોઈ એન્ટ્રી મળી નહીં','e');renderPending()}
+  else if($('auto').checked){autoPost()}
+  else{msg(pending.length+' એન્ટ્રી તૈયાર, તપાસીને સાચવો','s');renderPending()}
+ }catch(err){msg('ભૂલ: '+err.message,'e')}
+ $('go').disabled=false;
+}
+$('go').onclick=convert;
+
+function edHTML(e){
+ const T=['પ્રાપ્તિ','ચુકવણી','જર્નલ','વેચાણ','ખરીદી','કોન્ટ્રા','ઉઘડતી'];
+ return `<div class="vo"><label>તારીખ</label><input type="date" id="ed_d" value="${e.date}">
+ <label>પ્રકાર</label><select id="ed_t">${T.map(t=>`<option ${t===e.type?'selected':''}>${t}</option>`).join('')}</select>
+ <label>ઉધાર ખાતું</label><input id="ed_dr" list="acl" value="${xe(e.debit)}">
+ <label>જમા ખાતું</label><input id="ed_cr" list="acl" value="${xe(e.credit)}">
+ <label>રકમ</label><input id="ed_a" type="number" value="${e.amount}">
+ <label>વિગત</label><input id="ed_n" value="${xe(e.narration)}">
+ <button class="btn g" onclick="edSave()">સુધારો સાચવો</button><button class="btn o" onclick="edDone()" style="margin-top:8px">રદ કરો</button></div>`;
+}
+function edDone(){ed=null;renderAll();renderPending()}
+function edSave(){
+ const v={date:$('ed_d').value,type:$('ed_t').value,debit:$('ed_dr').value.trim(),credit:$('ed_cr').value.trim(),amount:Number($('ed_a').value),narration:$('ed_n').value.trim()};
+ if(!v.date||!v.debit||!v.credit||!(v.amount>0)||v.debit===v.credit){msg('તારીખ, બંને ખાતા અને રકમ સાચી નાખો (બંને ખાતા અલગ હોવા જોઈએ)','e');return}
+ if(ed.s==='p')Object.assign(pending[ed.i],v);else{Object.assign(entries.find(e=>e.id===ed.id),v);save()}
+ edDone();
+}
+const eb='class="btn o" style="width:auto;padding:6px 10px;font-size:13px"';
+function renderPending(){
+ if(!pending.length){$('pend').innerHTML='';return}
+ $('pend').innerHTML='<div class="card"><b>તૈયાર એન્ટ્રી</b>'+pending.map((e,i)=>ed&&ed.s==='p'&&ed.i===i?edHTML(e):
+  `<div class="vo"><small>${e.date} · ${esc(e.type)}</small><br>
+  <b>${esc(e.debit)}</b> ખાતે ઉધાર<br>&nbsp;&nbsp;&nbsp;&nbsp;<b>${esc(e.credit)}</b> ખાતે જમા<br>
+  રકમ: ₹ ${fmt(e.amount)}<br><small>${esc(e.narration)}</small>
+  <div style="text-align:right"><button ${eb} onclick="ed={s:'p',i:${i}};renderPending()">સુધારો</button> <button class="btn r" onclick="pending.splice(${i},1);ed=null;renderPending()">કાઢી નાખો</button></div></div>`
+ ).join('')+'<button class="btn g" id="okall">બધી એન્ટ્રી સાચવો</button></div>';
+ $('okall').onclick=()=>{
+  pending.forEach(e=>entries.push({id:Date.now()+Math.random(),...e}));
+  save();pending=[];ed=null;img=null;$('pv').style.display='none';$('file').value='';$('txt').value='';
+  renderPending();renderAll();msg('એન્ટ્રી ખાતાવહીમાં સાચવાઈ ગઈ','s');
+  if($('t_auto').checked)sendTally();
+ };
+}
+
+function renderVouchers(){
+ const l=entries.filter(inR).sort((a,b)=>b.date.localeCompare(a.date));
+ $('vlist').innerHTML=l.length?l.map(e=>ed&&ed.s==='v'&&ed.id===e.id?edHTML(e):
+  `<div class="vo"><small>${e.date} · ${esc(e.type)}${e.sent?' · ✔ Tally માં મોકલાઈ':''}</small><br>
+  <b>${esc(e.debit)}</b> ખાતે ઉધાર ₹ ${fmt(e.amount)}<br>&nbsp;&nbsp;&nbsp;&nbsp;<b>${esc(e.credit)}</b> ખાતે જમા<br>
+  <small>${esc(e.narration)}</small>
+  <div style="text-align:right"><button ${eb} onclick="ed={s:'v',id:${e.id}};renderVouchers()">સુધારો</button> <button class="btn r" onclick="delV(${e.id})">કાઢી નાખો</button></div></div>`
+ ).join(''):'<div class="card">કોઈ વાઉચર નથી</div>';
+}
+function delV(id){if(confirm('આ વાઉચર કાઢી નાખવું છે?')){entries=entries.filter(e=>e.id!==id);save();renderAll()}}
+
+function renderLedger(){
+ const a=accounts().sort((x,y)=>x.localeCompare(y,'gu'));
+ const cur=$('acsel').value||CASH;
+ $('acsel').innerHTML=a.map(x=>`<option ${x===cur?'selected':''}>${esc(x)}</option>`).join('');
+ const ac=$('acsel').value;let bal=0,rows='',td=0,tc=0;
+ const mine=entries.filter(e=>e.debit===ac||e.credit===ac).sort((x,y)=>x.date.localeCompare(y.date));
+ if(fr()){mine.filter(e=>e.date<fr()).forEach(e=>{bal+=e.debit===ac?e.amount:-e.amount});
+  if(bal)rows+=`<tr><td colspan="4">આગળની સિલક</td><td class="n">${fmt(Math.abs(bal))} ${bal>=0?'ઉધાર':'જમા'}</td></tr>`}
+ mine.filter(inR).forEach(e=>{
+  const dr=e.debit===ac;const other=dr?e.credit:e.debit;
+  bal+=dr?e.amount:-e.amount;if(dr)td+=e.amount;else tc+=e.amount;
+  rows+=`<tr><td>${e.date}</td><td>${dr?'થી':'ને'} ${esc(other)}</td><td class="n">${dr?fmt(e.amount):''}</td><td class="n">${dr?'':fmt(e.amount)}</td><td class="n">${fmt(Math.abs(bal))} ${bal>=0?'ઉધાર':'જમા'}</td></tr>`;
+ });
+ $('ledger').innerHTML=rows?`<table><tr><th>તારીખ</th><th>વિગત</th><th>ઉધાર</th><th>જમા</th><th>બાકી</th></tr>${rows}<tr class="tot"><td colspan="2">કુલ</td><td class="n">${fmt(td)}</td><td class="n">${fmt(tc)}</td><td class="n">${fmt(Math.abs(bal))} ${bal>=0?'ઉધાર':'જમા'}</td></tr></table>`:'આ ખાતામાં કોઈ એન્ટ્રી નથી';
+}
+$('acsel').onchange=renderLedger;
+
+function renderTrial(){
+ const m=bals(entries.filter(upto));
+ let rows='',D=0,C=0;
+ Object.keys(m).sort((a,b)=>a.localeCompare(b,'gu')).forEach(k=>{
+  const v=m[k];if(Math.abs(v)<0.005)return;
+  if(v>0)D+=v;else C+=-v;
+  rows+=`<tr><td>${esc(k)}</td><td class="n">${v>0?fmt(v):''}</td><td class="n">${v<0?fmt(-v):''}</td></tr>`;
+ });
+ $('trial').innerHTML=rows?`<b>તારીજ પત્રક</b><small> (${to()||'આજ'} સુધી)</small><table><tr><th>ખાતું</th><th>ઉધાર</th><th>જમા</th></tr>${rows}<tr class="tot"><td>કુલ</td><td class="n">${fmt(D)}</td><td class="n">${fmt(C)}</td></tr></table>`:'હજી કોઈ ડેટા નથી';
+}
+
+const row2=(n,v)=>`<tr><td>${esc(n)}</td><td class="n">${fmt(v)}</td></tr>`;
+const none='<tr><td colspan="2">કોઈ નથી</td></tr>';
+function renderReports(){
+ const un=accounts().filter(n=>!kind(n));
+ const w=un.length?`<div class="vo">આ ખાતાના જૂથ નક્કી નથી, તેથી સામેલ નથી: ${esc(un.join(', '))}</div>`:'';
+ const srt=m=>Object.keys(m).sort((x,y)=>x.localeCompare(y,'gu'));
+ let m=bals(entries.filter(inR)),ri='',rx='',I=0,X=0;
+ srt(m).forEach(n=>{const v=m[n],k=kind(n);if(Math.abs(v)<0.005)return;
+  if(k==='I'){I-=v;ri+=row2(n,-v)}else if(k==='X'){X+=v;rx+=row2(n,v)}});
+ const pr=I-X;
+ $('pl').innerHTML=`<b>નફા-નુકસાન પત્રક</b><small> (${fr()||'શરૂઆત'} થી ${to()||'આજ'})</small>${w}<table><tr><th colspan="2">આવક</th></tr>${ri||none}<tr class="tot"><td>કુલ આવક</td><td class="n">${fmt(I)}</td></tr><tr><th colspan="2">ખર્ચ</th></tr>${rx||none}<tr class="tot"><td>કુલ ખર્ચ</td><td class="n">${fmt(X)}</td></tr><tr class="tot"><td>${pr>=0?'ચોખ્ખો નફો':'ચોખ્ખું નુકસાન'}</td><td class="n">${fmt(Math.abs(pr))}</td></tr></table>`;
+ m=bals(entries.filter(upto));let rl='',ra='',TL=0,TA=0,P=0;
+ srt(m).forEach(n=>{const v=m[n],k=kind(n);if(Math.abs(v)<0.005)return;
+  if(k==='L'){TL-=v;rl+=row2(n,-v)}else if(k==='A'){TA+=v;ra+=row2(n,v)}else if(k==='I'||k==='X'){P-=v}});
+ TL+=P;
+ $('bs').innerHTML=`<b>પાકું સરવૈયું</b><small> (${to()||'આજ'} સુધી)</small><table><tr><th colspan="2">દેવાં અને મૂડી</th></tr>${rl}${P?row2('ચાલુ નફો / નુકસાન',P):''}${rl||P?'':none}<tr class="tot"><td>કુલ</td><td class="n">${fmt(TL)}</td></tr><tr><th colspan="2">મિલકત</th></tr>${ra||none}<tr class="tot"><td>કુલ</td><td class="n">${fmt(TA)}</td></tr></table>${Math.abs(TL-TA)>0.005?`<div class="vo">સરવૈયું મળતું નથી (તફાવત ₹ ${fmt(TL-TA)}), ખાતાના જૂથ તપાસો</div>`:''}`;
+}
+function renderGroups(){
+ gl=accounts().filter(n=>n!==CASH&&n!==OB).sort((x,y)=>x.localeCompare(y,'gu'));
+ $('grp').innerHTML=gl.length?gl.map((n,i)=>`<div style="margin-top:8px"><small>${esc(n)}</small><select onchange="setG(${i},this.value)"><option value="">— પસંદ કરો —</option>${Object.keys(GL).map(g=>`<option value="${g}" ${groups[n]===g?'selected':''}>${GL[g][0]}</option>`).join('')}</select></div>`).join(''):'<small>હજી કોઈ ખાતું નથી</small>';
+}
+function setG(i,v){if(v)groups[gl[i]]=v;else delete groups[gl[i]];saveG();renderReports()}
+
+function renderAll(){$('acl').innerHTML=accounts().map(a=>`<option value="${xe(a)}">`).join('');renderVouchers();renderLedger();renderTrial();renderReports();renderGroups()}
+
+const VT={'પ્રાપ્તિ':'Receipt','ચુકવણી':'Payment','જર્નલ':'Journal','વેચાણ':'Sales','ખરીદી':'Purchase','કોન્ટ્રા':'Contra'};
+const xe=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+$('xml').onclick=async()=>{
+ const key=localStorage.getItem(KK),en=$('xlang').value==='en';
+ if(!entries.length){msg('પહેલા એન્ટ્રી ઉમેરો','e');return}
+ if(!key){msg('પહેલા સેટિંગમાં Gemini API ચાવી નાખો','e');return}
+ const names=accounts(),narrs=[...new Set(entries.map(e=>e.narration).filter(Boolean))];
+ msg('Tally ખાતાના જૂથ તૈયાર થઈ રહ્યા છે...','w');$('xml').disabled=true;
+ try{
+  const p=`For Tally ERP import, take these Gujarati account names: ${JSON.stringify(names)}. Return ONLY JSON: {"a":{"<exact name>":{"en":"English name (transliterate person names)","group":"<one Tally group>"}}${en?`,"n":{"<exact narration>":"English translation"}`:''}}. Allowed groups: Cash-in-Hand, Bank Accounts, Sundry Debtors, Sundry Creditors, Sales Accounts, Purchase Accounts, Direct Expenses, Indirect Expenses, Direct Incomes, Indirect Incomes, Capital Account, Loans (Liability), Current Liabilities, Current Assets, Fixed Assets, Duties & Taxes.${en?' Narrations: '+JSON.stringify(narrs):''}`;
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:p}]}],generationConfig:{responseMimeType:'application/json',temperature:0.1}})});
+  const d=await r.json();
+  if(!r.ok)throw new Error(r.status===429?'મર્યાદા પૂરી થઈ, થોડી વાર પછી ફરી પ્રયત્ન કરો':(d.error&&d.error.message)||'ભૂલ');
+  const j=JSON.parse(d.candidates[0].content.parts.map(x=>x.text||'').join('').replace(/```json|```/g,'').trim());
+  const nm=n=>en?((j.a[n]&&j.a[n].en)||n):n;
+  const nr=n=>en?((j.n&&j.n[n])||n):n;
+  let x='<ENVELOPE><HEADER><TALLYREQUEST>Import Data</TALLYREQUEST></HEADER><BODY><IMPORTDATA><REQUESTDESC><REPORTNAME>Vouchers</REPORTNAME></REQUESTDESC><REQUESTDATA>\n';
+  names.forEach(n=>{const g=n===CASH?'Cash-in-Hand':(grp(n)||(j.a[n]&&j.a[n].group)||'Current Assets');
+   if(en&&n===CASH)return;
+   x+=`<TALLYMESSAGE xmlns:UDF="TallyUDF"><LEDGER NAME="${xe(nm(n))}" ACTION="Create"><NAME>${xe(nm(n))}</NAME><PARENT>${xe(g)}</PARENT></LEDGER></TALLYMESSAGE>\n`});
+  entries.forEach(e=>{const t=VT[e.type]||'Journal';
+   x+=`<TALLYMESSAGE xmlns:UDF="TallyUDF"><VOUCHER VCHTYPE="${t}" ACTION="Create"><DATE>${e.date.replace(/-/g,'')}</DATE><VOUCHERTYPENAME>${t}</VOUCHERTYPENAME><NARRATION>${xe(nr(e.narration))}</NARRATION>`+
+   `<ALLLEDGERENTRIES.LIST><LEDGERNAME>${xe(nm(e.debit))}</LEDGERNAME><ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE><AMOUNT>-${e.amount}</AMOUNT></ALLLEDGERENTRIES.LIST>`+
+   `<ALLLEDGERENTRIES.LIST><LEDGERNAME>${xe(nm(e.credit))}</LEDGERNAME><ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE><AMOUNT>${e.amount}</AMOUNT></ALLLEDGERENTRIES.LIST></VOUCHER></TALLYMESSAGE>\n`});
+  x+='</REQUESTDATA></IMPORTDATA></BODY></ENVELOPE>';
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([x],{type:'text/xml'}));
+  a.download='tally_import_'+(en?'english':'gujarati')+'.xml';a.click();
+  msg('Tally XML ડાઉનલોડ થઈ ગઈ','s');
+ }catch(err){msg('ભૂલ: '+err.message,'e')}
+ $('xml').disabled=false;
+};
+$('exp').onclick=()=>{
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(new Blob([JSON.stringify({entries,groups},null,1)],{type:'application/json'}));
+ a.download='tally_smart_backup.json';a.click();
+};
+$('clr').onclick=()=>{if(confirm('બધો ડેટા કાયમ માટે કાઢી નાખવો છે?')){entries=[];save();renderAll()}};
+$('fr').onchange=$('to').onchange=renderAll;
+$('fclr').onclick=()=>{$('fr').value=$('to').value='';renderAll()};
+$('ob_b').onclick=()=>{
+ const n=$('ob_n').value.trim(),a=Number($('ob_a').value),d=$('ob_d').value||new Date().toISOString().slice(0,10);
+ if(!n||!(a>0)||n===OB){msg('ખાતાનું નામ અને રકમ નાખો','e');return}
+ const dr=$('ob_s').value==='d';
+ entries.push({id:Date.now()+Math.random(),date:d,type:'ઉઘડતી',debit:dr?n:OB,credit:dr?OB:n,amount:a,narration:'ઉઘડતી સિલક'});
+ save();$('ob_n').value=$('ob_a').value='';renderAll();msg('ઉઘડતી સિલક ઉમેરાઈ','s');
+};
+$('rst').onchange=e=>{
+ const f=e.target.files[0];if(!f)return;const r=new FileReader();
+ r.onload=()=>{try{
+  const d=JSON.parse(r.result),L=Array.isArray(d)?d:d.entries;
+  if(!Array.isArray(L)||L.some(x=>!x.debit||!x.credit||!(x.amount>0)||!x.date))throw 0;
+  L.forEach(x=>{if(!x.id)x.id=Date.now()+Math.random()});
+  const rep=confirm(L.length+' વાઉચર મળ્યા. હાલના ડેટાની જગ્યાએ મૂકવા છે?\nOK = બદલો, Cancel = આગળ');
+  if(rep){entries=L}
+  else if(confirm('હાલના ડેટા સાથે ભેગા ઉમેરવા છે?')){const ids=new Set(entries.map(x=>x.id));L.forEach(x=>{if(!ids.has(x.id))entries.push(x)})}
+  else return;
+  if(d.groups)groups=rep?d.groups:Object.assign({},groups,d.groups);
+  save();saveG();renderAll();msg('બેકઅપ પાછું આવી ગયું','s');
+ }catch(err){msg('આ બેકઅપ ફાઇલ સાચી નથી','e')}};
+ r.readAsText(f);e.target.value='';
+};
+$('aig').onclick=async()=>{
+ const key=localStorage.getItem(KK);
+ if(!key){msg('પહેલા સેટિંગમાં Gemini API ચાવી નાખો','e');return}
+ const names=accounts().filter(n=>n!==CASH&&n!==OB&&!groups[n]);
+ if(!names.length){msg('બધા ખાતાના જૂથ નક્કી છે','s');return}
+ $('aig').disabled=true;msg('જૂથ નક્કી થઈ રહ્યા છે...','w');
+ try{
+  const p=`Classify these Gujarati account names, each into exactly one Tally group. Return ONLY a JSON object {"<exact name>":"<group>"}. Allowed groups: ${Object.keys(GL).join(', ')}. Names: ${JSON.stringify(names)}`;
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:p}]}],generationConfig:{responseMimeType:'application/json',temperature:0.1}})});
+  const d=await r.json();
+  if(!r.ok)throw new Error(r.status===429?'મર્યાદા પૂરી થઈ, થોડી વાર પછી ફરી પ્રયત્ન કરો':(d.error&&d.error.message)||'ભૂલ');
+  const j=JSON.parse(d.candidates[0].content.parts.map(x=>x.text||'').join('').replace(/```json|```/g,'').trim());
+  names.forEach(n=>{if(GL[j[n]])groups[n]=j[n]});
+  saveG();renderAll();msg('જૂથ નક્કી થઈ ગયા, એક વાર તપાસી લેજો','s');
+ }catch(err){msg('ભૂલ: '+err.message,'e')}
+ $('aig').disabled=false;
+};
+function autoPost(){
+ const n=pending.length;
+ lastBatch=pending.map(e=>{const x={id:Date.now()+Math.random(),...e};entries.push(x);return x.id});
+ save();pending=[];ed=null;img=null;$('pv').style.display='none';$('file').value='';$('txt').value='';
+ renderPending();renderAll();
+ $('pend').innerHTML='<div class="card"><b>હમણાં સાચવાયેલી એન્ટ્રી</b>'+entries.filter(e=>lastBatch.includes(e.id)).map(e=>
+  `<div class="vo"><small>${e.date} · ${esc(e.type)}</small><br><b>${esc(e.debit)}</b> ખાતે ઉધાર<br>&nbsp;&nbsp;&nbsp;&nbsp;<b>${esc(e.credit)}</b> ખાતે જમા<br>રકમ: ₹ ${fmt(e.amount)}<br><small>${esc(e.narration)}</small></div>`).join('')+
+  '<small>ખોટી હોય તો વાઉચર ટેબમાંથી સુધારો કરી શકાય.</small><button class="btn r" id="undo" style="width:100%;margin-top:8px;padding:11px">આ બધી એન્ટ્રી પાછી ખેંચો</button></div>';
+ $('undo').onclick=()=>{entries=entries.filter(e=>!lastBatch.includes(e.id));lastBatch=[];save();$('pend').innerHTML='';renderAll();msg('એન્ટ્રી પાછી ખેંચાઈ','s')};
+ msg(n+' એન્ટ્રી ખાતાવહીમાં આપોઆપ સાચવાઈ ગઈ','s');
+ if($('t_auto').checked)sendTally();
+}
+$('mic').onclick=()=>{
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){msg('આ બ્રાઉઝરમાં બોલીને લખવાની સુવિધા નથી, Chrome કે Kiwi વાપરો','e');return}
+ const r=new SR();r.lang='gu-IN';r.interimResults=false;r.continuous=false;
+ $('mic').textContent='🎤 સાંભળી રહ્યું છે... બોલો';
+ r.onresult=e=>{
+  const t=e.results[0][0].transcript;
+  $('txt').value=($('txt').value?$('txt').value+'\n':'')+t;
+  if($('auto').checked)convert();
+ };
+ r.onerror=e=>msg('માઇક ભૂલ: '+e.error+' (માઇકની પરવાનગી અને ઇન્ટરનેટ તપાસો)','e');
+ r.onend=()=>{$('mic').textContent='🎤 બોલીને લખો'};
+ r.start();
+};
+['t_url','t_co'].forEach(i=>{$(i).value=localStorage.getItem('smart_'+i)||'';$(i).onchange=()=>localStorage.setItem('smart_'+i,$(i).value.trim())});
+$('t_auto').checked=localStorage.getItem('smart_t_auto')==='1';
+$('t_auto').onchange=()=>localStorage.setItem('smart_t_auto',$('t_auto').checked?'1':'0');
+async function sendTally(){
+ const L=entries.filter(e=>!e.sent);
+ if(!L.length){msg('મોકલવા માટે કોઈ નવી એન્ટ્રી નથી','s');return}
+ msg('Tally Prime માં મોકલવાની તૈયારી...','w');
+ await $('aig').onclick();
+ const url=$('t_url').value.trim()||'http://localhost:9000',co=$('t_co').value.trim();
+ const done=JSON.parse(localStorage.getItem('smart_led')||'[]');
+ const nw=[...new Set(L.flatMap(e=>[e.debit,e.credit]))].filter(n=>!done.includes(n));
+ let x='<ENVELOPE><HEADER><TALLYREQUEST>Import Data</TALLYREQUEST></HEADER><BODY><IMPORTDATA><REQUESTDESC><REPORTNAME>Vouchers</REPORTNAME>'+(co?'<STATICVARIABLES><SVCURRENTCOMPANY>'+xe(co)+'</SVCURRENTCOMPANY></STATICVARIABLES>':'')+'</REQUESTDESC><REQUESTDATA>\n';
+ nw.forEach(n=>{x+=`<TALLYMESSAGE xmlns:UDF="TallyUDF"><LEDGER NAME="${xe(n)}" ACTION="Create"><NAME>${xe(n)}</NAME><PARENT>${xe(grp(n)||'Current Assets')}</PARENT></LEDGER></TALLYMESSAGE>\n`});
+ L.forEach(e=>{const t=VT[e.type]||'Journal';
+  x+=`<TALLYMESSAGE xmlns:UDF="TallyUDF"><VOUCHER VCHTYPE="${t}" ACTION="Create"><DATE>${e.date.replace(/-/g,'')}</DATE><VOUCHERTYPENAME>${t}</VOUCHERTYPENAME><PERSISTEDVIEW>Accounting Voucher View</PERSISTEDVIEW><NARRATION>${xe(e.narration)}</NARRATION>`+
+  `<ALLLEDGERENTRIES.LIST><LEDGERNAME>${xe(e.debit)}</LEDGERNAME><ISDEEMEDPOSITIVE>Yes</ISDEEMEDPOSITIVE><AMOUNT>-${e.amount}</AMOUNT></ALLLEDGERENTRIES.LIST>`+
+  `<ALLLEDGERENTRIES.LIST><LEDGERNAME>${xe(e.credit)}</LEDGERNAME><ISDEEMEDPOSITIVE>No</ISDEEMEDPOSITIVE><AMOUNT>${e.amount}</AMOUNT></ALLLEDGERENTRIES.LIST></VOUCHER></TALLYMESSAGE>\n`});
+ x+='</REQUESTDATA></IMPORTDATA></BODY></ENVELOPE>';
+ try{
+  await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:x});
+  L.forEach(e=>e.sent=true);save();localStorage.setItem('smart_led',JSON.stringify([...done,...nw]));renderAll();
+  msg(L.length+' એન્ટ્રી Tally Prime ને મોકલાઈ. Tally ના Day Book માં તપાસી લો','s');
+ }catch(err){msg('Tally Prime સુધી પહોંચ્યું નહીં. Tally ચાલુ, કંપની ખુલ્લી અને સર્વર (પોર્ટ 9000) ચાલુ છે કે તપાસો','e')}
+}
+$('t_send').onclick=sendTally;
+$('t_reset').onclick=()=>{if(confirm('બધી એન્ટ્રી ફરી મોકલવાની બાકી ગણાશે. Tally માં પહેલેથી ગયેલી એન્ટ્રી બે વાર બની શકે. ચાલુ રાખવું?')){entries.forEach(e=>delete e.sent);save();localStorage.removeItem('smart_led');renderAll();msg('સ્થિતિ સાફ થઈ','s')}};
+renderAll();
+</script>
+</body>
+</html>
